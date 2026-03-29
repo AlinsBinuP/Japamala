@@ -10,7 +10,7 @@ const PageCover = React.forwardRef((props, ref) => {
       <div className="page-content">
         <h1>പരിശുദ്ധ ജപമാല</h1>
         <div className="cover-accent"></div>
-        <p style={{ color: 'white', opacity: 0.9 }}>Holy Rosary Malayalam</p>
+        <p style={{ color: 'white', opacity: 0.1 }}>Holy Rosary Malayalam</p>
       </div>
     </div>
   );
