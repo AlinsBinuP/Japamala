@@ -471,7 +471,7 @@ b {
   justify-content: center;
   gap: 16px;
   padding: 10px 16px 20px;
-  background: linear-gradient(to top, rgba(5, 10, 20, 0.98) 60%, transparent 100%);
+  background: linear-gradient(to top, rgba(74, 28, 64, 1) 0%, rgba(140, 42, 92, 0.85) 50%, transparent 100%);
   flex-shrink: 0;
 }
 
