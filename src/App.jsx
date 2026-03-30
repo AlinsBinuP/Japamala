@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { Menu, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { rosaryData } from './data/rosaryContent';
 import './index.css';
@@ -59,17 +59,31 @@ function App() {
     const saved = localStorage.getItem('rosary_page');
     return saved !== null ? Math.min(parseInt(saved, 10), TOTAL_PAGES - 1) : 0;
   });
+  const [slideDir, setSlideDir] = useState('none'); // 'left' | 'right' | 'none'
+  const [isAnimating, setIsAnimating] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const goToPage = useCallback((index) => {
-    const clamped = Math.max(0, Math.min(index, TOTAL_PAGES - 1));
-    setCurrentPage(clamped);
-    localStorage.setItem('rosary_page', clamped.toString());
-    setIsMenuOpen(false);
-  }, []);
+  const navigate = useCallback((targetPage) => {
+    const clamped = Math.max(0, Math.min(targetPage, TOTAL_PAGES - 1));
+    if (clamped === currentPage || isAnimating) return;
+    const dir = clamped > currentPage ? 'left' : 'right';
+    setSlideDir(dir);
+    setIsAnimating(true);
+    setTimeout(() => {
+      setCurrentPage(clamped);
+      localStorage.setItem('rosary_page', clamped.toString());
+      setSlideDir('none');
+      setIsAnimating(false);
+    }, 280);
+  }, [currentPage, isAnimating]);
 
-  const goNext = () => goToPage(currentPage + 1);
-  const goPrev = () => goToPage(currentPage - 1);
+  const goNext = () => navigate(currentPage + 1);
+  const goPrev = () => navigate(currentPage - 1);
+
+  const goToPage = useCallback((index) => {
+    navigate(index);
+    setIsMenuOpen(false);
+  }, [navigate]);
 
   const menuItems = [
     { label: 'മുഖചിത്രം', target: 0 },
@@ -168,7 +182,10 @@ function App() {
 
       {/* Book Display */}
       <div className="book-wrapper">
-        <div className="page-display">
+        <div
+          key={currentPage}
+          className={`page-display slide-${slideDir}`}
+        >
           {renderCurrentPage()}
         </div>
       </div>
