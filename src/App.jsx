@@ -111,6 +111,7 @@ function App() {
             <h1>ആമ്മേൻ</h1>
             <div className="cover-accent"></div>
             <p style={{ color: 'white', opacity: 0.9 }}>ദൈവം അനുഗ്രഹിക്കട്ടെ</p>
+            <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', marginTop: '1.5rem', letterSpacing: '0.05rem' }}>Made for Light Suvara</p>
           </div>
         </div>
       );
