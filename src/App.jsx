@@ -164,7 +164,7 @@ function App() {
           useMouseEvents={true}
           swipeDistance={30}
           showPageCorners={false}
-          disableFlipByClick={false}
+          disableFlipByClick={true}
         >
           {/* Front Cover */}
           <PageCover isActive={currentPage <= 1} />
@@ -208,14 +208,22 @@ function App() {
       <div className="nav-controls">
         <button
           className="btn-nav"
-          onClick={() => bookRef.current.pageFlip().flipPrev()}
+          onClick={() => {
+            if (bookRef.current && currentPage > 0) {
+              bookRef.current.pageFlip().turnToPage(currentPage - 1);
+            }
+          }}
           disabled={currentPage === 0}
         >
           <ChevronLeft size={20} /> പിന്നിലേക്ക്
         </button>
         <button
           className="btn-nav"
-          onClick={() => bookRef.current.pageFlip().flipNext()}
+          onClick={() => {
+            if (bookRef.current) {
+              bookRef.current.pageFlip().turnToPage(currentPage + 1);
+            }
+          }}
           disabled={currentPage >= rosaryData.length + 1}
         >
           അടുത്തത് <ChevronRight size={20} />
