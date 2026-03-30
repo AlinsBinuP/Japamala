@@ -5,13 +5,11 @@ import { rosaryData } from './data/rosaryContent';
 import './index.css';
 
 const PageCover = React.forwardRef((props, ref) => {
-  const { isActive } = props;
   return (
     <div 
       className="page page-cover" 
       ref={ref} 
       data-density="hard"
-      style={{ display: isActive ? 'flex' : 'none' }}
     >
       <div className="page-content">
         <h1>പരിശുദ്ധ ജപമാല</h1>
@@ -23,9 +21,9 @@ const PageCover = React.forwardRef((props, ref) => {
 });
 
 const Page = React.forwardRef((props, ref) => {
-  const { title, content, image, pageNumber, section, isActive } = props;
+  const { title, content, image, pageNumber, section } = props;
   const isLitany = section === 'litany';
-  const pageClass = `page page-${section} ${isLitany ? 'page-litany' : ''} ${isActive ? 'active-page' : 'inactive-page'}`;
+  const pageClass = `page page-${section} ${isLitany ? 'page-litany' : ''}`;
 
   const formatLitanyLine = (line) => {
     if (!isLitany) return line;
@@ -47,13 +45,7 @@ const Page = React.forwardRef((props, ref) => {
   };
 
   return (
-    <div 
-      className={pageClass} 
-      ref={ref} 
-      style={{ 
-        display: isActive ? 'flex' : 'none' // Manual visibility toggle if library fails
-      }}
-    >
+    <div className={pageClass} ref={ref}>
       <div className="page-content">
         {title && <h2>{title}</h2>}
         
@@ -161,13 +153,13 @@ function App() {
           usePortrait={true}
           startPage={currentPage}
           flippingTime={600}
-          useMouseEvents={true}
-          swipeDistance={30}
+          useMouseEvents={false}
+          swipeDistance={9999}
           showPageCorners={false}
           disableFlipByClick={true}
         >
           {/* Front Cover */}
-          <PageCover isActive={currentPage <= 1} />
+          <PageCover />
 
           {/* Book Content */}
           {rosaryData.map((item, index) => {
@@ -184,7 +176,6 @@ function App() {
                 image={item.image}
                 pageNumber={index + 1}
                 section={section}
-                isActive={Math.abs(currentPage - (index + 1)) <= 1} // Only render current and neighbors
               />
             );
           })}
@@ -193,7 +184,6 @@ function App() {
           <div 
             className="page page-cover" 
             data-density="hard"
-            style={{ display: currentPage >= rosaryData.length ? 'flex' : 'none' }}
           >
             <div className="page-content">
               <h1>ആമ്മേൻ</h1>

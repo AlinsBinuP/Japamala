@@ -73,6 +73,46 @@ body {
   perspective: 2000;
 }
 
+/* ============================================================
+   react-pageflip INTERNAL ELEMENTS — WebView GPU Fix
+   These are the actual DOM elements that perform 3D rotations.
+   Without -webkit- prefixes, Android WebView shows the back
+   face ("mirrored" content) during flip transitions.
+   ============================================================ */
+.stf__parent {
+  -webkit-perspective: 2000px !important;
+  perspective: 2000px !important;
+  -webkit-transform-style: preserve-3d !important;
+  transform-style: preserve-3d !important;
+  overflow: visible !important;
+}
+
+.stf__block {
+  -webkit-transform-style: preserve-3d !important;
+  transform-style: preserve-3d !important;
+  overflow: visible !important;
+}
+
+.stf__item {
+  -webkit-backface-visibility: hidden !important;
+  backface-visibility: hidden !important;
+  -webkit-transform: translate3d(0, 0, 0) !important;
+  transform: translate3d(0, 0, 0) !important;
+}
+
+.stf__item--flipping {
+  -webkit-backface-visibility: hidden !important;
+  backface-visibility: hidden !important;
+  -webkit-transform-style: preserve-3d !important;
+  transform-style: preserve-3d !important;
+}
+
+.stf__shadow {
+  -webkit-transform: translate3d(0, 0, 1px) !important;
+  transform: translate3d(0, 0, 1px) !important;
+}
+
+
 .page {
   background-color: var(--paper-bg);
   background-image:
