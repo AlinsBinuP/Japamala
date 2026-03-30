@@ -52,38 +52,24 @@ const Page = ({ title, content, image, pageNumber, section }) => {
 };
 
 // All "pages" in order: front cover, content pages, back cover
-const TOTAL_PAGES = rosaryData.length + 2; // +2 for front and back covers
+const TOTAL_PAGES = rosaryData.length + 2;
 
 function App() {
   const [currentPage, setCurrentPage] = useState(() => {
     const saved = localStorage.getItem('rosary_page');
     return saved !== null ? Math.min(parseInt(saved, 10), TOTAL_PAGES - 1) : 0;
   });
-  const [slideDir, setSlideDir] = useState('none'); // 'left' | 'right' | 'none'
-  const [isAnimating, setIsAnimating] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const navigate = useCallback((targetPage) => {
-    const clamped = Math.max(0, Math.min(targetPage, TOTAL_PAGES - 1));
-    if (clamped === currentPage || isAnimating) return;
-    const dir = clamped > currentPage ? 'left' : 'right';
-    setSlideDir(dir);
-    setIsAnimating(true);
-    setTimeout(() => {
-      setCurrentPage(clamped);
-      localStorage.setItem('rosary_page', clamped.toString());
-      setSlideDir('none');
-      setIsAnimating(false);
-    }, 280);
-  }, [currentPage, isAnimating]);
-
-  const goNext = () => navigate(currentPage + 1);
-  const goPrev = () => navigate(currentPage - 1);
-
   const goToPage = useCallback((index) => {
-    navigate(index);
+    const clamped = Math.max(0, Math.min(index, TOTAL_PAGES - 1));
+    setCurrentPage(clamped);
+    localStorage.setItem('rosary_page', clamped.toString());
     setIsMenuOpen(false);
-  }, [navigate]);
+  }, []);
+
+  const goNext = () => goToPage(currentPage + 1);
+  const goPrev = () => goToPage(currentPage - 1);
 
   const menuItems = [
     { label: 'മുഖചിത്രം', target: 0 },
@@ -116,7 +102,11 @@ function App() {
     // Last page = Back Cover
     if (currentPage === TOTAL_PAGES - 1) {
       return (
-        <div className="page page-cover">
+        <div className="page page-cover" style={{
+          backgroundImage: "url('/images/litany.jpg')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        }}>
           <div className="page-content">
             <h1>ആമ്മേൻ</h1>
             <div className="cover-accent"></div>
@@ -184,7 +174,7 @@ function App() {
       <div className="book-wrapper">
         <div
           key={currentPage}
-          className={`page-display slide-${slideDir}`}
+          className="page-display"
         >
           {renderCurrentPage()}
         </div>
