@@ -241,7 +241,7 @@ body {
   position: relative;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 1.5rem 1.5rem 130px 1.5rem; /* CRITICAL: 130px bottom padding to clear nav footer */
+  padding: 1.5rem 1.5rem 20px 1.5rem; /* Normal padding — book sits above nav */
   touch-action: pan-y;
   -webkit-overflow-scrolling: touch;
 }

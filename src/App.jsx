@@ -198,22 +198,14 @@ function App() {
       <div className="nav-controls">
         <button
           className="btn-nav"
-          onClick={() => {
-            if (bookRef.current && currentPage > 0) {
-              bookRef.current.pageFlip().turnToPage(currentPage - 1);
-            }
-          }}
+          onClick={() => bookRef.current?.pageFlip().flipPrev()}
           disabled={currentPage === 0}
         >
           <ChevronLeft size={20} /> പിന്നിലേക്ക്
         </button>
         <button
           className="btn-nav"
-          onClick={() => {
-            if (bookRef.current) {
-              bookRef.current.pageFlip().turnToPage(currentPage + 1);
-            }
-          }}
+          onClick={() => bookRef.current?.pageFlip().flipNext()}
           disabled={currentPage >= rosaryData.length + 1}
         >
           അടുത്തത് <ChevronRight size={20} />
