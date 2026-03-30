@@ -45,11 +45,15 @@ const Page = React.forwardRef((props, ref) => {
 
 function App() {
   const bookRef = useRef();
-  const [currentPage, setCurrentPage] = useState(0);
+  const [currentPage, setCurrentPage] = useState(() => {
+    const saved = localStorage.getItem('rosary_page');
+    return saved !== null ? parseInt(saved, 10) : 0;
+  });
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const onPage = useCallback((e) => {
     setCurrentPage(e.data);
+    localStorage.setItem('rosary_page', e.data.toString());
   }, []);
 
   const goToPage = (index) => {
@@ -61,13 +65,14 @@ function App() {
 
   const menuItems = [
     { label: 'മുഖചിത്രം', target: 0 },
-    { label: 'ത്രിസന്ധ്യാജപം', target: 1 },
-    { label: 'പ്രധാന പ്രാർത്ഥനകൾ', target: 2 },
-    { label: 'സന്തോഷ രഹസ്യങ്ങൾ', target: 6 },
-    { label: 'പ്രകാശ രഹസ്യങ്ങൾ', target: 11 },
-    { label: 'ദുഃഖ രഹസ്യങ്ങൾ', target: 16 },
-    { label: 'മഹിമ രഹസ്യങ്ങൾ', target: 21 },
-    { label: 'ലുത്തിനിയ', target: 27 },
+    { label: 'ഉയിർപ്പുകാല ജപം', target: 1 },
+    { label: 'ത്രിസന്ധ്യാജപം', target: 2 },
+    { label: 'പ്രധാന പ്രാർത്ഥനകൾ', target: 3 },
+    { label: 'സന്തോഷ രഹസ്യങ്ങൾ', target: 7 },
+    { label: 'പ്രകാശ രഹസ്യങ്ങൾ', target: 12 },
+    { label: 'ദുഃഖ രഹസ്യങ്ങൾ', target: 17 },
+    { label: 'മഹിമ രഹസ്യങ്ങൾ', target: 22 },
+    { label: 'ലുത്തിനിയ', target: 28 },
   ];
 
   return (
@@ -119,7 +124,7 @@ function App() {
           className="rosary-book"
           ref={bookRef}
           usePortrait={true}
-          startPage={0}
+          startPage={currentPage}
           flippingTime={1000}
           useMouseEvents={true}
           swipeDistance={30}
