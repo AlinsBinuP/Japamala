@@ -1,27 +1,9 @@
-import React, { useState, useRef, useCallback } from 'react';
-import HTMLFlipBook from 'react-pageflip';
+import React, { useState, useCallback } from 'react';
 import { Menu, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { rosaryData } from './data/rosaryContent';
 import './index.css';
 
-const PageCover = React.forwardRef((props, ref) => {
-  return (
-    <div 
-      className="page page-cover" 
-      ref={ref} 
-      data-density="hard"
-    >
-      <div className="page-content">
-        <h1>പരിശുദ്ധ ജപമാല</h1>
-        <div className="cover-accent"></div>
-        <p style={{ color: 'white', opacity: 0.1 }}>Holy Rosary Malayalam</p>
-      </div>
-    </div>
-  );
-});
-
-const Page = React.forwardRef((props, ref) => {
-  const { title, content, image, pageNumber, section } = props;
+const Page = ({ title, content, image, pageNumber, section }) => {
   const isLitany = section === 'litany';
   const pageClass = `page page-${section} ${isLitany ? 'page-litany' : ''}`;
 
@@ -45,10 +27,10 @@ const Page = React.forwardRef((props, ref) => {
   };
 
   return (
-    <div className={pageClass} ref={ref}>
+    <div className={pageClass}>
       <div className="page-content">
         {title && <h2>{title}</h2>}
-        
+
         {image && (
           <div className="mystery-card-image" style={{ '--bg-url': `url(/images/${image}.png)` }}>
             <img src={`/images/${image}.png`} alt={title} />
@@ -57,8 +39,8 @@ const Page = React.forwardRef((props, ref) => {
 
         <div className="text-container">
           {content.map((paragraph, pIndex) => (
-            <p 
-              key={pIndex} 
+            <p
+              key={pIndex}
               dangerouslySetInnerHTML={{ __html: formatPrayerContent(paragraph) }}
             />
           ))}
@@ -67,27 +49,27 @@ const Page = React.forwardRef((props, ref) => {
       <div className="page-number">Page {pageNumber}</div>
     </div>
   );
-});
+};
+
+// All "pages" in order: front cover, content pages, back cover
+const TOTAL_PAGES = rosaryData.length + 2; // +2 for front and back covers
 
 function App() {
-  const bookRef = useRef();
   const [currentPage, setCurrentPage] = useState(() => {
     const saved = localStorage.getItem('rosary_page');
-    return saved !== null ? parseInt(saved, 10) : 0;
+    return saved !== null ? Math.min(parseInt(saved, 10), TOTAL_PAGES - 1) : 0;
   });
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const onPage = useCallback((e) => {
-    setCurrentPage(e.data);
-    localStorage.setItem('rosary_page', e.data.toString());
+  const goToPage = useCallback((index) => {
+    const clamped = Math.max(0, Math.min(index, TOTAL_PAGES - 1));
+    setCurrentPage(clamped);
+    localStorage.setItem('rosary_page', clamped.toString());
+    setIsMenuOpen(false);
   }, []);
 
-  const goToPage = (index) => {
-    if (bookRef.current) {
-      bookRef.current.pageFlip().turnToPage(index);
-      setIsMenuOpen(false);
-    }
-  };
+  const goNext = () => goToPage(currentPage + 1);
+  const goPrev = () => goToPage(currentPage - 1);
 
   const menuItems = [
     { label: 'മുഖചിത്രം', target: 0 },
@@ -95,12 +77,61 @@ function App() {
     { label: 'വിശുദ്ധവാര ജപം', target: 2 },
     { label: 'ത്രിസന്ധ്യാജപം', target: 3 },
     { label: 'പ്രധാന പ്രാർത്ഥനകൾ', target: 4 },
-    { label: 'സന്തോഷ രഹസ്യങ്ങൾ', target: 8 },
-    { label: 'പ്രകാശ രഹസ്യങ്ങൾ', target: 13 },
-    { label: 'ദുഃഖ രഹസ്യങ്ങൾ', target: 18 },
-    { label: 'മഹിമ രഹസ്യങ്ങൾ', target: 23 },
-    { label: 'ലുത്തിനിയ', target: 29 },
+    { label: 'സന്തോഷ രഹസ്യങ്ങൾ', target: 9 },
+    { label: 'പ്രകാശ രഹസ്യങ്ങൾ', target: 14 },
+    { label: 'ദുഃഖ രഹസ്യങ്ങൾ', target: 19 },
+    { label: 'മഹിമ രഹസ്യങ്ങൾ', target: 24 },
+    { label: 'ലുത്തിനിയ', target: 30 },
   ];
+
+  // Determine what to render for the current page index
+  const renderCurrentPage = () => {
+    // Page 0 = Front Cover
+    if (currentPage === 0) {
+      return (
+        <div className="page page-cover">
+          <div className="page-content">
+            <h1>പരിശുദ്ധ ജപമാല</h1>
+            <div className="cover-accent"></div>
+            <p style={{ color: 'white', opacity: 0.7 }}>Holy Rosary Malayalam</p>
+          </div>
+        </div>
+      );
+    }
+
+    // Last page = Back Cover
+    if (currentPage === TOTAL_PAGES - 1) {
+      return (
+        <div className="page page-cover">
+          <div className="page-content">
+            <h1>ആമ്മേൻ</h1>
+            <div className="cover-accent"></div>
+            <p style={{ color: 'white', opacity: 0.9 }}>ദൈവം അനുഗ്രഹിക്കട്ടെ</p>
+          </div>
+        </div>
+      );
+    }
+
+    // Content pages (index 1 to rosaryData.length)
+    const dataIndex = currentPage - 1;
+    const item = rosaryData[dataIndex];
+    if (!item) return null;
+
+    let section = 'mystery';
+    if (dataIndex < 4) section = 'intro';
+    else if (item.title && item.title.includes('ലുത്തിനിയ')) section = 'litany';
+    else if (dataIndex > 26) section = 'conclusion';
+
+    return (
+      <Page
+        title={item.title}
+        content={item.content}
+        image={item.image}
+        pageNumber={currentPage}
+        section={section}
+      />
+    );
+  };
 
   return (
     <div className="app-container">
@@ -135,78 +166,31 @@ function App() {
         </div>
       )}
 
+      {/* Book Display */}
       <div className="book-wrapper">
-        <HTMLFlipBook
-          width={350}
-          height={550}
-          size="stretch"
-          minWidth={315}
-          maxWidth={1000}
-          minHeight={420}
-          maxHeight={1533}
-          maxShadowOpacity={0.4}
-          showCover={true}
-          mobileScrollSupport={true}
-          onFlip={onPage}
-          className="rosary-book"
-          ref={bookRef}
-          usePortrait={true}
-          startPage={currentPage}
-          flippingTime={600}
-          useMouseEvents={false}
-          swipeDistance={9999}
-          showPageCorners={false}
-          disableFlipByClick={true}
-        >
-          {/* Front Cover */}
-          <PageCover />
+        <div className="page-display">
+          {renderCurrentPage()}
+        </div>
+      </div>
 
-          {/* Book Content */}
-          {rosaryData.map((item, index) => {
-            let section = 'mystery';
-            if (index < 4) section = 'intro';
-            else if (item.title && item.title.includes('ലുത്തിനിയ')) section = 'litany';
-            else if (index > 26) section = 'conclusion'; // Post-Litany prayers
-
-            return (
-              <Page
-                key={index}
-                title={item.title}
-                content={item.content}
-                image={item.image}
-                pageNumber={index + 1}
-                section={section}
-              />
-            );
-          })}
-
-          {/* Back Cover */}
-          <div 
-            className="page page-cover" 
-            data-density="hard"
-          >
-            <div className="page-content">
-              <h1>ആമ്മേൻ</h1>
-              <div className="cover-accent"></div>
-              <p style={{ color: 'white', opacity: 0.9 }}>ദൈവം അനുഗ്രഹിക്കട്ടെ</p>
-            </div>
-          </div>
-        </HTMLFlipBook>
+      {/* Page Indicator */}
+      <div className="page-indicator">
+        {currentPage + 1} / {TOTAL_PAGES}
       </div>
 
       {/* Navigation Controls */}
       <div className="nav-controls">
         <button
           className="btn-nav"
-          onClick={() => bookRef.current?.pageFlip().flipPrev()}
+          onClick={goPrev}
           disabled={currentPage === 0}
         >
           <ChevronLeft size={20} /> പിന്നിലേക്ക്
         </button>
         <button
           className="btn-nav"
-          onClick={() => bookRef.current?.pageFlip().flipNext()}
-          disabled={currentPage >= rosaryData.length + 1}
+          onClick={goNext}
+          disabled={currentPage >= TOTAL_PAGES - 1}
         >
           അടുത്തത് <ChevronRight size={20} />
         </button>

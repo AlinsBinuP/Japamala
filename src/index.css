@@ -3,20 +3,15 @@
 
 :root {
   --primary-color: #8c2a5c;
-  /* Magenta/Deep Pink */
   --secondary-color: #4a1c40;
-  /* Deep Purple */
   --accent-gold: #d4af37;
-  /* Gold */
   --paper-bg: #fdfcf0;
-  /* Warm Parchment Cream */
   --paper-border: #e0d8b0;
   --text-main: #1a1a1a;
   --text-muted: #555555;
   --btn-bg: #8c2a5c;
   --btn-hover: #4a1c40;
   --litany-blue: #1a3a6c;
-  /* Royal Marian Blue */
 }
 
 * {
@@ -29,124 +24,60 @@ body {
   font-family: 'Outfit', 'Noto Sans Malayalam', sans-serif;
   background: linear-gradient(135deg, #050a14 0%, #0d1b2a 50%, #050a14 100%);
   color: var(--text-main);
-  min-height: 100vh;
+  height: 100vh;
   width: 100vw;
   display: flex;
   flex-direction: column;
-  overflow: hidden; /* No background scrolling */
-  position: fixed; /* Prevents "pull to refresh" on mobile */
-  /* Force GPU compositing on body layer for WebView */
-  -webkit-transform: translate3d(0, 0, 0);
-  transform: translate3d(0, 0, 0);
+  overflow: hidden;
+  position: fixed;
 }
 
+/* ===================== LAYOUT ===================== */
 .app-container {
   width: 100%;
   height: 100vh;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: flex-start;
   align-items: center;
-  padding: 10px 10px 120px 10px; /* Increased bottom padding for nav */
   position: relative;
-  overflow: visible; /* Changed from hidden to avoid WebView 3D clipping conflicts */
+  overflow: hidden;
 }
 
 .book-wrapper {
+  flex: 1;
   width: 100%;
   max-width: 500px;
-  height: calc(100vh - 140px); /* Explicitly subtract nav and padding */
   display: flex;
   justify-content: center;
-  align-items: center;
-  filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.4));
-  margin-top: -20px; /* Counteract centering for better mobile feel */
-  overflow: visible; /* Ensure 3D rotates don't get clipped */
-}
-
-.rosary-book {
-  border-radius: 4px;
+  align-items: flex-start;
   overflow: hidden;
-  /* Force WebView to use hardware layer for the entire flip book */
-  -webkit-transform: translate3d(0, 0, 0);
-  transform: translate3d(0, 0, 0);
-  -webkit-perspective: 2000;
-  perspective: 2000;
+  padding: 10px 10px 0 10px;
 }
 
-/* ============================================================
-   react-pageflip INTERNAL ELEMENTS — WebView GPU Fix
-   These are the actual DOM elements that perform 3D rotations.
-   Without -webkit- prefixes, Android WebView shows the back
-   face ("mirrored" content) during flip transitions.
-   ============================================================ */
-.stf__parent {
-  -webkit-perspective: 2000px !important;
-  perspective: 2000px !important;
-  -webkit-transform-style: preserve-3d !important;
-  transform-style: preserve-3d !important;
-  overflow: visible !important;
-}
-
-.stf__block {
-  -webkit-transform-style: preserve-3d !important;
-  transform-style: preserve-3d !important;
-  overflow: visible !important;
-}
-
-.stf__item {
-  -webkit-backface-visibility: hidden !important;
-  backface-visibility: hidden !important;
-  -webkit-transform: translate3d(0, 0, 0) !important;
-  transform: translate3d(0, 0, 0) !important;
-}
-
-.stf__item--flipping {
-  -webkit-backface-visibility: hidden !important;
-  backface-visibility: hidden !important;
-  -webkit-transform-style: preserve-3d !important;
-  transform-style: preserve-3d !important;
-}
-
-.stf__shadow {
-  -webkit-transform: translate3d(0, 0, 1px) !important;
-  transform: translate3d(0, 0, 1px) !important;
-}
-
-
-.page {
-  background-color: var(--paper-bg);
-  background-image:
-    radial-gradient(ellipse at center, rgba(255, 255, 255, 0.4) 0%, transparent 100%),
-    linear-gradient(to right, rgba(0, 0, 0, 0.02) 0%, transparent 5%, transparent 95%, rgba(0, 0, 0, 0.02) 100%);
-  border: 1px solid var(--paper-border);
-  padding: 1rem 0; /* Reduced vertical padding */
-  overflow: hidden;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.02);
-  /* Ensure page fits container */
+/* The single visible page */
+.page-display {
   width: 100%;
   height: 100%;
-
-  /* FORCING HARDWARE ACCELERATION IN WEBVIEW */
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-  -webkit-transform: translate3d(0, 0, 0);
-  transform: translate3d(0, 0, 0);
-  -webkit-perspective: 1000;
-  perspective: 1000;
+  overflow: hidden;
+  border-radius: 8px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
 }
 
-/* Abstract Gold Filigree Background - Enhanced with corner accents */
-.page:not(.page-cover) {
-  background-image:
-    linear-gradient(to right, rgba(0, 0, 0, 0.03) 0%, transparent 10%, transparent 90%, rgba(0, 0, 0, 0.03) 100%);
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
+/* ===================== PAGE STYLES ===================== */
+.page {
+  background-color: var(--paper-bg);
+  border: 1px solid var(--paper-border);
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
 }
 
-.page::before {
+/* Gold filigree border inside page */
+.page:not(.page-cover)::before {
   content: "";
   position: absolute;
   top: 10px;
@@ -156,221 +87,102 @@ body {
   border: 1px solid rgba(212, 175, 55, 0.35);
   pointer-events: none;
   z-index: 10;
-  box-shadow: inset 0 0 15px rgba(212, 175, 55, 0.05);
-}
-
-.page::after {
-  content: "";
-  position: absolute;
-  top: 14px;
-  left: 14px;
-  right: 14px;
-  bottom: 14px;
-  border: 2px double rgba(212, 175, 55, 0.15);
-  pointer-events: none;
-  z-index: 10;
-}
-
-/* Specialized Litany Styling (Royal Blue Theme) */
-.page-litany {
-  background-color: #0d1b2a !important;
-  /* Deeper blue for background image */
-  background-image:
-    url('/images/litany_bg.png') !important;
-  background-size: cover !important;
-  background-position: center !important;
-  border: 1px solid var(--litany-blue) !important;
-}
-
-.page-litany::before {
-  border: 1px double var(--accent-gold) !important;
-  top: 15px;
-  left: 15px;
-  right: 15px;
-  bottom: 15px;
-  opacity: 0.8;
-}
-
-.page-litany h2 {
-  color: var(--accent-gold) !important;
-  /* Gold title as requested */
-  border-bottom: 2px solid var(--accent-gold) !important;
-  padding-bottom: 0.75rem;
-  margin-bottom: 1rem;
-  text-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
-  /* Subtle glow */
-  letter-spacing: 0.1rem;
-}
-
-.page-litany p {
-  text-align: center !important;
-  color: #f0f4f8 !important;
-  /* High contrast text on dark background */
-  font-weight: 500;
-  line-height: 1.6 !important;
-  font-size: 1.1rem !important;
-  margin-bottom: 0.75rem;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 1);
-  /* Better readability */
-}
-
-/* Response Text Styling */
-.litany-response {
-  display: block;
-  color: var(--accent-gold);
-  /* Gold responses for liturgical feel */
-  font-size: 0.95rem;
-  font-style: italic;
-  margin-top: 2px;
-  opacity: 1;
-}
-
-.page-litany b {
-  color: var(--litany-blue) !important;
-  border-left: none !important;
-  padding-left: 0 !important;
-  display: inline-block;
-  margin-top: 0.5rem;
 }
 
 .page-content {
   flex: 1;
   width: 100%;
-  height: 100%;
-  z-index: 1;
-  position: relative;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 1.5rem 1.5rem 20px 1.5rem; /* Normal padding — book sits above nav */
+  padding: 1.5rem 1.5rem 1.5rem 1.5rem;
   touch-action: pan-y;
   -webkit-overflow-scrolling: touch;
+  position: relative;
+  z-index: 1;
 }
 
-/* Custom Scrollbar Styling - Premium Gold Look */
-.page-content::-webkit-scrollbar {
-  width: 8px;
-  /* Increased width for visibility */
-}
-
-.page-content::-webkit-scrollbar-track {
-  background: transparent;
-}
-
+/* Custom Scrollbar */
+.page-content::-webkit-scrollbar { width: 6px; }
+.page-content::-webkit-scrollbar-track { background: transparent; }
 .page-content::-webkit-scrollbar-thumb {
   background: linear-gradient(to bottom, var(--accent-gold), var(--primary-color));
   border-radius: 10px;
 }
 
-.page-content::-webkit-scrollbar-thumb:hover {
-  background: var(--accent-gold);
+.page-number {
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 6px 0 8px;
+  color: #666;
+  border-top: 1px solid rgba(212, 175, 55, 0.2);
+  flex-shrink: 0;
 }
 
+/* ===================== TYPOGRAPHY ===================== */
 h2 {
-  color: #1a3a6c; /* Majestic Blue as requested */
+  font-family: 'Outfit', sans-serif;
+  color: #1a3a6c;
   font-size: 1.3rem;
-  font-weight: 700;
+  font-weight: 800;
   text-align: center;
   margin-bottom: 1.25rem;
-  border-bottom: 1px solid rgba(26, 58, 108, 0.1);
   padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(26, 58, 108, 0.15);
   overflow-wrap: break-word;
+  text-transform: uppercase;
+  letter-spacing: 0.04rem;
 }
 
 p {
   font-size: 1.05rem;
-  line-height: 1.6;
+  line-height: 1.65;
   color: var(--text-main);
-  margin-bottom: 1.25rem;
-  text-align: left;
+  margin-bottom: 1.2rem;
   overflow-wrap: break-word;
 }
 
-.prayer-count,
-.prayer-instruction {
-  display: block;
-  text-align: center;
-  color: #ff85a2; /* Vibrant Rose for high contrast on dark blue */
-  font-weight: 600;
-  font-size: 0.95rem;
-  margin-top: 1rem;
-  padding: 10px;
-  background: rgba(255, 133, 162, 0.1);
-  border-radius: 8px;
-  border: 1px solid rgba(255, 133, 162, 0.2);
-  font-style: italic;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.prayer-action {
-  color: #ffd700 !important; /* Gold for dark backgrounds */
+b {
+  color: var(--primary-color);
   font-weight: 700;
-  font-size: 1.05rem;
-  text-shadow: 0 0 2px rgba(0, 0, 0, 0.4);
-}
-
-.page-mystery .prayer-action,
-.page-mystery .prayer-instruction,
-.page-mystery .prayer-count {
-  color: #1a3a6c !important; /* Majestic Blue for contrast on pink */
-  text-shadow: none;
-  background: rgba(255, 133, 162, 0.12) !important; /* Restored Pink Rectangle */
-  border: 1px solid rgba(255, 133, 162, 0.3) !important;
-  border-radius: 8px;
-  padding: 8px;
-  margin-top: 1rem;
+  border-left: 3px solid var(--accent-gold);
+  padding-left: 10px;
   display: block;
-}
-
-.page-number {
   margin-top: 1rem;
-  text-align: center;
-  font-size: 0.85rem;
-  color: #ffffff !important; /* High Visibility for dark pages */
-  font-weight: 800;
-  padding-top: 12px;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
-  z-index: 20;
 }
 
-/* Global contrast fix for for parchment-themed pages */
-.page:not(.page-intro):not(.page-litany):not(.page-conclusion):not(.page-cover) .page-number,
-.page-mystery .page-number {
-  color: #000000 !important; /* Strong contrast on light pages */
-  text-shadow: none !important;
-  opacity: 1 !important;
-}
-
-/* Cover Overhaul - Clearer Page */
+/* ===================== COVER ===================== */
 .page-cover {
-  background: white url('/images/mothermary.png');
+  background: #0d1b2a url('/images/mothermary.png');
   background-size: cover;
   background-position: center;
   border: none;
-  justify-content: flex-end;
   align-items: center;
+  justify-content: flex-end;
   text-align: center;
-  padding: 2rem;
   position: relative;
 }
 
-/* Light gradient overlay just to make the gold text pop, without blurring the image */
 .page-cover::after {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(to top, rgba(74, 28, 64, 0.8) 0%, transparent 60%);
+  inset: 0;
+  background: linear-gradient(to top, rgba(74, 28, 64, 0.85) 0%, transparent 60%);
   pointer-events: none;
 }
 
 .page-cover .page-content {
   z-index: 2;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: 2rem;
 }
 
 .page-cover h1 {
-  font-size: 2.4rem;
+  font-size: 2.2rem;
   color: var(--accent-gold);
   text-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
   margin-bottom: 0.5rem;
@@ -385,35 +197,161 @@ p {
   box-shadow: 0 0 15px var(--accent-gold);
 }
 
-/* Mystery Card - Gallery Redesign */
+/* ===================== SECTION TYPES ===================== */
+.page-mystery {
+  background-color: var(--paper-bg);
+}
+
+.page-intro,
+.page-conclusion {
+  background-color: #0d1b2a !important;
+  background-image:
+    linear-gradient(rgba(13, 27, 42, 0.6), rgba(13, 27, 42, 0.6)),
+    url('/images/litany_bg.png') !important;
+  background-size: cover !important;
+  background-position: center !important;
+  color: #f0f4f8 !important;
+  border: 1px solid var(--litany-blue) !important;
+}
+
+.page-intro h2,
+.page-conclusion h2 {
+  color: var(--accent-gold) !important;
+  border-bottom-color: rgba(212, 175, 55, 0.4) !important;
+}
+
+.page-intro p,
+.page-conclusion p {
+  color: #f0f4f8 !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+}
+
+.page-intro b {
+  color: #ff85a2 !important;
+  border-left-color: #ff85a2 !important;
+}
+
+.page-conclusion b {
+  color: var(--accent-gold) !important;
+}
+
+.page-intro .page-number,
+.page-conclusion .page-number {
+  color: rgba(255, 255, 255, 0.5) !important;
+  border-top-color: rgba(212, 175, 55, 0.2) !important;
+}
+
+/* ===================== LITANY ===================== */
+.page-litany {
+  background-color: #0d1b2a !important;
+  background-image: url('/images/litany_bg.png') !important;
+  background-size: cover !important;
+  background-position: center !important;
+  border: 1px solid var(--litany-blue) !important;
+}
+
+.page-litany h2 {
+  color: var(--accent-gold) !important;
+  border-bottom: 2px solid var(--accent-gold) !important;
+  text-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
+  letter-spacing: 0.1rem;
+}
+
+.page-litany p {
+  text-align: center !important;
+  color: #f0f4f8 !important;
+  font-weight: 500;
+  line-height: 1.6 !important;
+  font-size: 1.05rem !important;
+  margin-bottom: 0.75rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 1);
+}
+
+.page-litany .page-number {
+  color: rgba(255, 255, 255, 0.5) !important;
+  border-top-color: rgba(212, 175, 55, 0.2) !important;
+}
+
+.litany-response {
+  display: block;
+  color: var(--accent-gold);
+  font-size: 0.95rem;
+  font-style: italic;
+  margin-top: 2px;
+}
+
+.page-litany b {
+  color: var(--litany-blue) !important;
+  border-left: none !important;
+  padding-left: 0 !important;
+  display: inline-block;
+  margin-top: 0.5rem;
+}
+
+/* ===================== PRAYERS / ACTIONS ===================== */
+.prayer-count,
+.prayer-instruction {
+  display: block;
+  text-align: center;
+  color: #ff85a2;
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-top: 1rem;
+  padding: 10px;
+  background: rgba(255, 133, 162, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 133, 162, 0.2);
+  font-style: italic;
+}
+
+.prayer-action {
+  color: #ffd700 !important;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.page-mystery .prayer-action,
+.page-mystery .prayer-instruction,
+.page-mystery .prayer-count {
+  color: #1a3a6c !important;
+  text-shadow: none;
+  background: rgba(255, 133, 162, 0.12) !important;
+  border: 1px solid rgba(255, 133, 162, 0.3) !important;
+  border-radius: 8px;
+  padding: 8px;
+  margin-top: 1rem;
+  display: block;
+}
+
+.page-mystery b {
+  color: #1a3a6c !important;
+  border-left-color: #1a3a6c !important;
+}
+
+/* ===================== MYSTERY IMAGE ===================== */
 .mystery-card-image {
-  margin: 0rem 0 1.5rem 0;
+  margin: 0 0 1.5rem 0;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.5);
   border: 1px solid rgba(212, 175, 55, 0.4);
   background: #000;
   position: relative;
-  height: 320px;
-  display: flex !important;
+  height: 280px;
+  display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* Blurred background of the image itself for a gallery look */
 .mystery-card-image::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   background-image: var(--bg-url);
   background-size: cover;
   background-position: center;
-  filter: blur(30px) brightness(0.6); /* Increased blur and darkened */
+  filter: blur(30px) brightness(0.6);
   opacity: 0.9;
-  z-index: 0;
 }
 
 .mystery-card-image img {
@@ -428,64 +366,17 @@ p {
   outline: 1px solid var(--accent-gold);
 }
 
-/* Premium Candlelight Glow */
-.mystery-glow-container {
-  position: relative;
-  /* Multi-layered gradient for candlelight effect */
-  background:
-    radial-gradient(ellipse at center, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.45) 50%, transparent 100%),
-    linear-gradient(to top, #ffffff 0%, rgba(255, 255, 255, 0) 100%);
-  padding: 1.5rem 1rem;
-  margin-top: -30px;
-  /* Merge with gallery */
-  border-radius: 0 0 16px 16px;
-  z-index: 2;
-  box-shadow: 0 -20px 40px rgba(255, 255, 255, 0.3);
-}
-
-.liturgical-divider {
-  text-align: center;
-  color: var(--accent-gold);
-  font-size: 1.2rem;
-  margin-bottom: 1rem;
-  opacity: 0.8;
-  letter-spacing: 0.5rem;
-}
-
-h2 {
-  font-family: 'Outfit', sans-serif;
-  color: #1a3a6c; /* Majestic Blue as requested */
-  font-size: 1.4rem;
-  font-weight: 800;
-  text-align: center;
-  margin-bottom: 1.5rem;
-  letter-spacing: 0.05rem;
-  text-transform: uppercase;
-  background: linear-gradient(to right, transparent, rgba(26, 58, 108, 0.05) 50%, transparent);
-  padding: 8px 0;
-}
-
-b {
-  color: var(--primary-color);
-  font-weight: 700;
-  border-left: 3px solid var(--accent-gold);
-  padding-left: 10px;
-  display: block;
-  margin-top: 1rem;
-}
-
-/* Menu Toggle Button Visibility */
+/* ===================== MENU BUTTON ===================== */
 .menu-toggle {
-  position: absolute;
-  top: 20px;
-  right: 20px;
+  position: fixed;
+  top: 16px;
+  right: 16px;
   z-index: 1000;
   background: var(--primary-color);
-  /* Higher contrast */
   color: white;
   border: none;
-  width: 48px;
-  height: 48px;
+  width: 46px;
+  height: 46px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -495,19 +386,13 @@ b {
   transition: transform 0.2s, background 0.2s;
 }
 
-.menu-toggle:active {
-  transform: scale(0.9);
-}
+.menu-toggle:active { transform: scale(0.9); }
 
-/* Nav Modal/Drawer */
+/* ===================== NAV MODAL ===================== */
 .nav-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   background: rgba(0, 0, 0, 0.85);
-  /* Slightly darker for more contrast */
   backdrop-filter: blur(8px);
   z-index: 2000;
   display: flex;
@@ -521,75 +406,66 @@ b {
   width: 90%;
   max-width: 340px;
   border-radius: 16px;
-  padding: 2rem;
+  padding: 1.5rem;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
   border: 1px solid var(--accent-gold);
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 .nav-menu h3 {
   color: var(--accent-gold);
-  margin-bottom: 1.5rem;
   text-align: center;
-  font-size: 1.6rem;
+  font-size: 1.4rem;
   font-weight: 700;
 }
 
 .nav-item {
   display: block;
   width: 100%;
-  padding: 14px;
-  margin-bottom: 10px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   color: white;
   text-align: left;
   font-family: 'Noto Sans Malayalam', sans-serif;
-  font-size: 1.05rem;
+  font-size: 1rem;
   cursor: pointer;
   transition: all 0.2s;
 }
 
-.nav-item:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: var(--accent-gold);
-  color: var(--accent-gold);
-  transform: translateX(5px);
+.nav-item:hover { background: rgba(255,255,255,0.1); border-color: var(--accent-gold); color: var(--accent-gold); }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* ===================== PAGE INDICATOR ===================== */
+.page-indicator {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.75rem;
+  text-align: center;
+  padding: 4px 0;
+  flex-shrink: 0;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
-}
-
-/* Nav Controls - High Contrast & Visibility */
+/* ===================== NAV CONTROLS ===================== */
 .nav-controls {
-  position: fixed;
-  bottom: 0px;
   width: 100%;
-  left: 0;
   display: flex;
   justify-content: center;
-  align-items: center;
-  gap: 15px;
-  padding: 15px 0 25px 0;
-  background: linear-gradient(to top, rgba(5, 10, 20, 0.95) 60%, transparent 100%);
-  z-index: 1500;
-  pointer-events: none;
+  gap: 16px;
+  padding: 10px 16px 20px;
+  background: linear-gradient(to top, rgba(5, 10, 20, 0.98) 60%, transparent 100%);
+  flex-shrink: 0;
 }
 
 .btn-nav {
-  pointer-events: auto;
   background: #111;
   color: #ffffff;
   border: 1px solid var(--accent-gold);
-  min-width: 120px;
-  padding: 10px 15px;
+  min-width: 130px;
+  padding: 11px 18px;
   border-radius: 30px;
   font-weight: 700;
   cursor: pointer;
@@ -598,136 +474,16 @@ b {
   justify-content: center;
   gap: 8px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
-  transition: all 0.2s ease;
-  font-size: 0.9rem;
+  transition: background 0.2s, transform 0.1s;
+  font-size: 0.95rem;
+  font-family: 'Noto Sans Malayalam', 'Outfit', sans-serif;
 }
 
-.btn-nav:hover:not(:disabled) {
-  background: var(--primary-color);
-  transform: translateY(-4px) scale(1.05);
-  box-shadow: 0 15px 30px rgba(140, 42, 92, 0.4);
-}
-
-.btn-nav:active:not(:disabled) {
-  transform: translateY(0) scale(0.95);
-}
-
-.btn-nav:disabled {
-  opacity: 0.2;
-  cursor: not-allowed;
-  filter: grayscale(1);
-}
+.btn-nav:hover:not(:disabled) { background: var(--primary-color); }
+.btn-nav:active:not(:disabled) { transform: scale(0.96); }
+.btn-nav:disabled { opacity: 0.25; cursor: not-allowed; filter: grayscale(1); }
 
 @media (max-width: 600px) {
-  .book-wrapper {
-    height: 70vh;
-    margin-top: -20px;
-  }
-
-  .nav-controls {
-    padding-bottom: 20px;
-    gap: 10px;
-  }
-
-  .btn-nav {
-    min-width: 100px;
-    font-size: 0.85rem;
-    padding: 8px 12px;
-  }
-
-  .page-cover h1 {
-    font-size: 2rem;
-  }
-
-  .page {
-    padding: 1rem;
-  }
-}
-
-/* Section Specific Backgrounds with Sacred Effects */
-.page-intro {
-  background-color: #0d1b2a !important; /* Deep Royal blue to match Litany */
-  background-image:
-    linear-gradient(rgba(13, 27, 42, 0.6), rgba(13, 27, 42, 0.6)),
-    url('/images/litany_bg.png') !important;
-  background-size: cover !important;
-  background-position: center !important;
-  color: #f0f4f8 !important; /* Parchment white for high-contrast */
-  border: 1px solid var(--litany-blue) !important;
-}
-
-.page-intro h2 {
-  color: var(--accent-gold) !important;
-  border-bottom: 2px solid var(--accent-gold) !important;
-  text-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
-}
-
-.page-intro p {
-  color: #f0f4f8 !important;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9); /* Stronger shadow for readability */
-}
-
-.page-intro::before {
-  border: 1px double var(--accent-gold) !important;
-  top: 15px;
-  left: 15px;
-  right: 15px;
-  bottom: 15px;
-  opacity: 0.6;
-}
-
-.page-intro::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(circle at center, transparent 10%, rgba(212, 175, 55, 0.1) 100%);
-  pointer-events: none;
-}
-
-.page-intro b {
-  color: #ff85a2 !important; /* Rose color for intro headers */
-  border-left-color: #ff85a2 !important;
-}
-
-.page-mystery b {
-  color: #1a3a6c !important; /* Majestic Blue for mystery headers */
-  border-left-color: #1a3a6c !important;
-}
-
-.page-mystery .prayer-instruction {
-  color: #1a3a6c !important; /* Majestic Blue for mystery instructions */
-  background: rgba(26, 58, 108, 0.05);
-  border-color: rgba(26, 58, 108, 0.1);
-  box-shadow: none;
-}
-
-.page-conclusion {
-  background-color: #0d1b2a !important;
-  background-image:
-    linear-gradient(rgba(13, 27, 42, 0.6), rgba(13, 27, 42, 0.6)),
-    url('/images/outro_bg.png') !important;
-  background-size: cover !important;
-  background-position: center !important;
-  color: #ffffff !important;
-}
-
-.page-conclusion h2 {
-  color: var(--accent-gold) !important;
-  border-bottom-color: rgba(212, 175, 55, 0.3) !important;
-}
-
-.page-conclusion p {
-  color: #f0f4f8 !important;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
-}
-
-.page-conclusion .page-number {
-  color: rgba(255, 255, 255, 0.5);
-}
-
-.page-conclusion b {
-  color: var(--accent-gold) !important;
+  .btn-nav { min-width: 110px; font-size: 0.85rem; padding: 9px 14px; }
+  h2 { font-size: 1.15rem; }
 }
