@@ -81,7 +81,8 @@ function App() {
     { label: 'പ്രകാശ രഹസ്യങ്ങൾ', target: 14 },
     { label: 'ദുഃഖ രഹസ്യങ്ങൾ', target: 19 },
     { label: 'മഹിമ രഹസ്യങ്ങൾ', target: 24 },
-    { label: 'ലുത്തിനിയ', target: 30 },
+    { label: 'ജപമാല സമർപ്പണം', target: 25 },
+    { label: 'ലുത്തിനിയ', target: 26 },
   ];
 
   // Determine what to render for the current page index
@@ -124,7 +125,7 @@ function App() {
 
     let section = 'mystery';
     if (dataIndex < 4) section = 'intro';
-    else if (item.title && item.title.includes('ലുത്തിനിയ')) section = 'litany';
+    else if (item.title && (item.title.includes('ലുത്തിനിയ') || item.title.includes('ജപമാല സമർപ്പണം'))) section = 'litany';
     else if (dataIndex > 26) section = 'conclusion';
 
     return (
